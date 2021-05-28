@@ -1,0 +1,76 @@
+from timeit import default_timer as timer
+
+
+def delta(mt, estado, simbolo):
+    try:
+        prox_estado, novo_simbolo, direcao = mt[3][(estado, simbolo)]
+        return prox_estado, novo_simbolo, direcao
+    except:
+        return (None, None, None)
+
+
+def computacao(mt, palavra):
+    inicio              = timer()
+    simbolos_palavra    = mt[2]
+    estado_inicial      = mt[4]
+    simbolo_branco      = mt[5]
+    estados_finais      = mt[6]
+
+    posicao_atual       = 0
+    conta_passos        = 0
+    estado_atual        = '' + estado_inicial
+
+    while True:
+
+        if len(palavra) == 0:
+            palavra.append(simbolo_branco)
+
+        if (palavra[posicao_atual] not in simbolos_palavra) and (palavra[posicao_atual] not in simbolo_branco):
+            print(f'Não é  possível ler o simbolo: {palavra[posicao_atual]}')
+
+            return [False, palavra]
+
+        else:
+            novo_estado, novo_simbolo, direcao = delta(mt, estado_atual, palavra[posicao_atual])
+            conta_passos += 1
+
+            if novo_estado is None and estado_atual in estados_finais:
+                palavra = list(filter(simbolo_branco.__ne__, palavra))
+
+                # print('FINISHED WITH SUCCESS')
+                # print(f'Palavra Final      : {palavra}')
+                # print(f'Estado Inicial     : {estado_inicial}')
+                # print(f'Estado Final       : {estado_atual} \n')
+
+                fim = timer()
+
+                print(f'\nTamanho: {len(palavra)} - Tempo: {float(fim - inicio)} - Passos: {conta_passos}')
+
+                return [True, palavra]
+
+            if novo_estado is None and estado_atual not in estados_finais:
+
+                return [False, palavra]
+
+            # print(f'1º - Escaneando o Simbolo {palavra[posicao_atual]}')
+            # print(f'2º - Trocando {palavra[posicao_atual]} por {novo_simbolo}')
+            # print( '3º - Movendo a Cabeça de Leitura para {}'.format(direcao.replace('L', 'Esquerda').replace('R', 'Direita')))
+            # print(f'4º - Saindo do Estado {estado_atual} e indo para o Estado {novo_estado}')
+            # print(f'Palavra Atual      : {palavra}')
+
+            estado_atual = novo_estado
+            palavra[posicao_atual] = novo_simbolo
+
+            # print(f'Palavra Atualizada : {palavra} \n')
+
+            if direcao == 'R':
+                if len(palavra) - 1 == posicao_atual:
+                    palavra = palavra + [simbolo_branco]
+
+                posicao_atual += 1
+
+            if direcao == 'L':
+                if posicao_atual == 0:
+                    palavra = [simbolo_branco] + palavra
+                else:
+                    posicao_atual -= 1
